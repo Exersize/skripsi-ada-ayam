@@ -24,7 +24,7 @@ function CartPage({ setPage }) {
         const cartItems = cart.map(item => ({ id: item.id, quantity: item.quantity }));
 
         try {
-            const response = await axios.post('http://localhost:5000/api/orders', 
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/products`, 
                 { shippingAddress: user.address, cartItems },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

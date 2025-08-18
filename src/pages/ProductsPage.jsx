@@ -10,7 +10,7 @@ function ProductsPage() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/products');
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products`);
                 setProducts(response.data);
             } catch (error) {
                 console.error("Gagal mengambil data produk:", error);
