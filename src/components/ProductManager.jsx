@@ -52,7 +52,7 @@ function ProductManager() {
 
     const fetchProducts = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products`, {
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setProducts(response.data);
@@ -71,11 +71,11 @@ function ProductManager() {
         const { id, ...data } = productData;
         try {
             if (id) { // Update
-                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/products`, data, {
+                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api`, data, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             } else { // Create
-                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/products`, data, {
+                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api`, data, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             }

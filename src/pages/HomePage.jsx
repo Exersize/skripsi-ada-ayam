@@ -23,7 +23,7 @@ function HomePage({ setPage }) {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products`);
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api`);
                 setFeaturedProducts(response.data.slice(0, 4));
             } catch (error) {
                 console.error("Gagal mengambil data produk:", error);

@@ -29,7 +29,7 @@ function ProfilePage() {
         setIsLoading(true);
         setMessage('');
         try {
-            const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/products`, 
+            const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api`, 
                 {
                     fullName: formData.fullName,
                     phoneNumber: formData.phoneNumber,
