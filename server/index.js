@@ -13,7 +13,7 @@ dotenv.config();
 
 // Membuat instance aplikasi Express
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 
 // Membuat instance Prisma Client untuk berinteraksi dengan database
 const prisma = new PrismaClient();
