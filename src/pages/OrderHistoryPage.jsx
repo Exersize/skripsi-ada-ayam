@@ -14,7 +14,7 @@ function OrderHistoryPage() {
                 return;
             };
             try {
-                const response = await axios.get('http://localhost:5000/api/orders/my-orders', {
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/orders/my-orders`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setOrders(response.data);

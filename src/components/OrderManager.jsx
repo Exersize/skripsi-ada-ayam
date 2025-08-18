@@ -11,7 +11,7 @@ function OrderManager() {
         if (!token) return;
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:5000/api/admin/orders', {
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/admin/orders`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setOrders(response.data);

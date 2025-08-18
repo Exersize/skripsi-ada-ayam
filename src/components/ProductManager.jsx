@@ -52,7 +52,7 @@ function ProductManager() {
 
     const fetchProducts = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api`, {
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/admin/products`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setProducts(response.data);
@@ -90,7 +90,7 @@ function ProductManager() {
 
     const handleToggleActive = async (product) => {
         try {
-            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/products`, { isActive: !product.isActive }, {
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/products`, { isActive: !product.isActive }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchProducts();

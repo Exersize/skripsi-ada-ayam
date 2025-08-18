@@ -29,8 +29,8 @@ function AdminDashboard() {
             try {
                 // Mengambil data produk dan pesanan secara bersamaan
                 const [productRes, orderRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/admin/products', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('http://localhost:5000/api/admin/orders', { headers: { Authorization: `Bearer ${token}` } })
+                    axios.get(`${import.meta.env.VITE_API_BASE_URL}api/admin/products`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/admin/orders`, { headers: { Authorization: `Bearer ${token}` } })
                 ]);
                 setStats({
                     productCount: productRes.data.length,
