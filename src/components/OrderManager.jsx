@@ -30,7 +30,7 @@ function OrderManager() {
         if (!confirm(`Anda yakin ingin mengubah status pesanan ini menjadi "${newStatus}"?`)) return;
         
         try {
-            await axios.put(`http://localhost:5000/api/admin/orders/${orderId}/status`, 
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/admin/orders/${orderId}/status`, 
                 { status: newStatus },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
