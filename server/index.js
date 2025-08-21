@@ -403,50 +403,53 @@ app.get('/api/orders/my-orders', authMiddleware, async (req, res) => {
 // --- Rute Notifikasi Midtrans (Webhook) ---
 app.post('/api/midtrans-notification', async (req, res) => {
     try {
-        console.log('--- Notifikasi Midtrans Diterima ---');
-        console.log('Body Notifikasi:', JSON.stringify(req.body, null, 2));
-
-        // Verifikasi notifikasi dari Midtrans
         const statusResponse = await snap.transaction.notification(req.body);
         
         const orderId = statusResponse.order_id;
         const transactionStatus = statusResponse.transaction_status;
         const fraudStatus = statusResponse.fraud_status;
 
-        console.log(`Notifikasi Terverifikasi untuk order_id: ${orderId}, status: ${transactionStatus}, fraud: ${fraudStatus}`);
-
         const order = await prisma.order.findUnique({
             where: { midtransOrderId: orderId },
+            include: { orderItems: true }, // Sertakan item pesanan
         });
 
         if (!order) {
-            console.log(`Order dengan midtransOrderId: ${orderId} tidak ditemukan.`);
             return res.status(404).send('Order not found.');
         }
 
-        // Logika pembaruan status pesanan
-        if (transactionStatus == 'capture' || transactionStatus == 'settlement') {
-            if (fraudStatus == 'accept') {
-                console.log(`Memperbarui status order ${orderId} menjadi PAID.`);
-                await prisma.order.update({
-                    where: { midtransOrderId: orderId },
-                    data: { status: 'PAID' },
-                });
-            }
+        // Hanya proses jika status masih PENDING_PAYMENT untuk mencegah duplikasi
+        if (order.status === 'PENDING_PAYMENT' && (transactionStatus == 'capture' || transactionStatus == 'settlement') && fraudStatus == 'accept') {
+            // Siapkan operasi pengurangan stok untuk setiap item
+            const stockUpdateOperations = order.orderItems.map(item =>
+                prisma.product.update({
+                    where: { id: item.productId },
+                    data: { stockKg: { decrement: item.quantityKg } }, // Kurangi stok
+                })
+            );
+
+            // Siapkan operasi update status pesanan
+            const orderUpdateOperation = prisma.order.update({
+                where: { midtransOrderId: orderId },
+                data: { status: 'PAID' },
+            });
+
+            // Jalankan semua operasi dalam satu transaksi
+            await prisma.$transaction([
+                ...stockUpdateOperations,
+                orderUpdateOperation
+            ]);
         } else if (transactionStatus == 'cancel' || transactionStatus == 'deny' || transactionStatus == 'expire') {
-            console.log(`Memperbarui status order ${orderId} menjadi CANCELLED.`);
             await prisma.order.update({
                 where: { midtransOrderId: orderId },
                 data: { status: 'CANCELLED' },
             });
         }
 
-        console.log('--- Notifikasi Berhasil Diproses ---');
         res.status(200).send('Notification received successfully.');
 
     } catch (error) {
-        console.error('!!! Error saat menangani notifikasi Midtrans:');
-        console.error(error.message); // Cetak pesan error yang lebih jelas
+        console.error('Error saat menangani notifikasi Midtrans:', error);
         res.status(500).send('Internal Server Error');
     }
 });
