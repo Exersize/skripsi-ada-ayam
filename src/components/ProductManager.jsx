@@ -71,11 +71,11 @@ function ProductManager() {
         const { id, ...data } = productData;
         try {
             if (id) { // Update
-                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api`, data, {
+                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/products/${id}`, data, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             } else { // Create
-                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api`, data, {
+                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/products`, data, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             }
