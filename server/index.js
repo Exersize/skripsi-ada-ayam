@@ -329,6 +329,12 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
             if (!product) {
                 return res.status(404).json({ msg: `Produk dengan ID ${item.id} tidak ditemukan.` });
             }
+            
+            // PERBAIKAN: Validasi stok sebelum membuat pesanan
+            if (item.quantity > product.stockKg) {
+                return res.status(400).json({ msg: `Stok untuk produk "${product.name}" tidak mencukupi. Sisa stok: ${product.stockKg} Kg.` });
+            }
+
             const subtotal = product.pricePerKg * item.quantity;
             totalAmount += subtotal;
             orderItemsData.push({

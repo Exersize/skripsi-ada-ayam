@@ -6,14 +6,40 @@ function ProductCard({ product }) {
     const { addToCart } = useCart();
     const [quantity, setQuantity] = useState(1);
     
-    // Cek apakah produk kehabisan stok
     const isOutOfStock = product.stockKg <= 0;
+
+    // PERBAIKAN: Pastikan kuantitas tidak melebihi stok saat pertama kali render
+    useEffect(() => {
+        if (quantity > product.stockKg) {
+            setQuantity(product.stockKg);
+        }
+    }, [product.stockKg, quantity]);
+
 
     const handleAddToCart = () => {
         if (isOutOfStock) return;
-        addToCart(product, quantity);
-        alert(`${quantity} kg ${product.name} ditambahkan ke keranjang!`);
+        // Pastikan kuantitas yang ditambahkan tidak melebihi stok
+        const qtyToAdd = Math.min(quantity, product.stockKg);
+        if (qtyToAdd <= 0) return;
+        
+        addToCart(product, qtyToAdd);
+        alert(`${qtyToAdd} kg ${product.name} ditambahkan ke keranjang!`);
         setQuantity(1);
+    };
+
+    const handleQuantityChange = (amount) => {
+        setQuantity(prevQty => {
+            let newQty = prevQty + amount;
+            // Batasi kuantitas maksimal sesuai sisa stok
+            if (newQty > product.stockKg) {
+                newQty = product.stockKg;
+            }
+            // Batasi kuantitas minimal
+            if (newQty < 0.5) {
+                newQty = 0.5;
+            }
+            return newQty;
+        });
     };
 
     if (!product || typeof product.pricePerKg === 'undefined') {
@@ -25,7 +51,6 @@ function ProductCard({ product }) {
             <div className="relative">
                 <img src={product.imageUrl || 'https://placehold.co/400x400/FBBF24/333333?text=Gambar+Produk'} alt={product.name} className="w-full h-48 object-cover"/>
                 
-                {/* Tampilkan overlay jika stok habis */}
                 {isOutOfStock && (
                     <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
                         <span className="text-white font-bold text-lg bg-red-600 px-4 py-2 rounded-md">Stok Habis</span>
@@ -38,14 +63,17 @@ function ProductCard({ product }) {
             </div>
             <div className="p-6">
                 <h3 className="text-xl font-bold text-gray-800 mb-2 truncate">{product.name}</h3>
-                <p className="text-lg font-semibold text-amber-600 mb-4">
+                <p className="text-lg font-semibold text-amber-600">
                     Rp {product.pricePerKg.toLocaleString('id-ID')} / kg
                 </p>
+                {!isOutOfStock && (
+                    <p className="text-sm text-gray-500 mb-4">Sisa Stok: {product.stockKg} Kg</p>
+                )}
                 <div className="flex items-center justify-center mb-4">
                      <div className="flex items-center border border-gray-300 rounded-full">
-                        <button disabled={isOutOfStock} onClick={() => setQuantity(q => Math.max(0.5, q - 0.5))} className="p-2 text-gray-600 hover:bg-gray-100 rounded-l-full disabled:cursor-not-allowed disabled:text-gray-300"><MinusIcon /></button>
+                        <button disabled={isOutOfStock} onClick={() => handleQuantityChange(-0.5)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-l-full disabled:cursor-not-allowed disabled:text-gray-300"><MinusIcon /></button>
                         <span className="px-4 text-lg font-semibold">{quantity}</span>
-                        <button disabled={isOutOfStock} onClick={() => setQuantity(q => q + 0.5)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-r-full disabled:cursor-not-allowed disabled:text-gray-300"><PlusIcon /></button>
+                        <button disabled={isOutOfStock} onClick={() => handleQuantityChange(0.5)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-r-full disabled:cursor-not-allowed disabled:text-gray-300"><PlusIcon /></button>
                     </div>
                 </div>
                 <button 
@@ -61,4 +89,3 @@ function ProductCard({ product }) {
 }
 
 export default ProductCard;
-
